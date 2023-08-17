@@ -1,0 +1,7 @@
+package presentations
+
+// {{upperFunctionName}}Payload const
+type {{upperFunctionName}}Payload struct {
+	ID int64 `json:"id"`
+	Name string `json:"name"`
+}

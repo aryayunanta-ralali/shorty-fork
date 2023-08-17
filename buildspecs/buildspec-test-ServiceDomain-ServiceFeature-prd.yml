@@ -1,0 +1,12 @@
+# Note: Builspec name buildspec-test-core-api-prd.yml
+version: 0.2
+phases:
+  install:
+    commands:
+      - echo install steps...
+  pre_build:
+    commands:
+  build:
+    commands:
+  post_build:
+    commands:

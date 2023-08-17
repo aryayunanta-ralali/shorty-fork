@@ -1,0 +1,51 @@
+# Note: Builspec name buildspec-core-api-prd.yml
+version: 0.2
+phases:
+  install:
+    commands:
+      - echo install steps...
+  pre_build:
+    commands:
+      - ls -la
+
+      - echo Check AWS, Git, Python version
+      - aws --version && git --version && python --version
+      - echo Check ENV Variable
+      - printenv
+
+      - pwd
+
+      - cp config/app.yaml.tpl config/app.yaml
+
+      - echo generate .env faster with ssm script
+      - aws s3 cp s3://rll-environment-prd/ssmgetterboto3_aurora.py ssmgetterboto3.py
+      - python3 ssmgetterboto3.py shorty sed config/app.yaml True
+      - rm ssmgetterboto3.py
+      # use below command to generate .env in your local
+      # sh deployment/env/config-*.sh
+
+
+      - echo Logging into AWS ECR...
+      - $(aws ecr get-login --no-include-email --region ap-southeast-1)
+      # Note :                                                             rll-core-api-prd
+      - REPOSITORY_URI=583459700509.dkr.ecr.ap-southeast-1.amazonaws.com/shorty-prd
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+  build:
+    commands:
+      - echo build Docker image on `date`
+      - echo Building the Docker image...
+      - docker build -t $REPOSITORY_URI:latest  -f deployment/dockerfiles/dockerfile-prd .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo build Docker image complete `date`
+      - echo push latest Docker images to ECR...
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
+      - echo Writing Image Definitions File...
+      # Note "name" : "rll-core-api-task-prd"                                                        core-api-prd.json
+      - printf '[{"name":"shorty-task-prd","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > shorty-prd.json
+artifacts:
+  #      core-api-prd.json
+  files: shorty-prd.json

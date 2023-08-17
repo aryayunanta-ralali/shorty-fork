@@ -1,0 +1,296 @@
+messages:
+  - name: SUCCESS
+    code: 200
+    contents:
+      - lang: id
+        text: Sukses
+      - lang: en
+        text: Success
+
+  - name: TRANSACTION_FAILED
+    code: 200
+    contents:
+      - lang: id
+        text: Transaksi gagal.
+      - lang: en
+        text: The transaction is failed.
+
+  - name: TRANSACTION_PROCESSING
+    code: 200
+    contents:
+      - lang: id
+        text: Transaksi sedang di proses.
+      - lang: en
+        text: Transaction is processing.
+
+  - name: TRANSACTION_PENDING
+    code: 200
+    contents:
+      - lang: id
+        text: Transaksi sedang di proses.
+      - lang: en
+        text: Transaction pending.
+
+  - name: AUTHENTICATION_FAILURE
+    code: 401
+    contents:
+      - lang: id
+        text: Autentikasi gagal.
+      - lang: en
+        text: Authentication failure.
+
+  - name: SIGNATURE_FAILURE
+    code: 401
+    contents:
+      - lang: id
+        text: Signature salah.
+      - lang: en
+        text: Signature incorrect.
+
+  - name: INSUFFICIENT_BALANCE
+    code: 422
+    contents:
+      - lang: id
+        text: Saldo tidak mencukupi.
+      - lang: en
+        text: Insufficient balance.
+
+  - name: DATA_NOT_FOUND
+    code: 422
+    contents:
+      - lang: id
+        text: Data tidak ditemukan di sistem.
+      - lang: en
+        text: Data not found in our system.
+
+  - name: VALIDATION_FAILURE
+    code: 400
+    contents:
+      - lang: id
+        text: salah / parameter masukan tidak valid
+      - lang: en
+        text: wrong / invalid input parameter
+
+  - name: UNPROCESSABLE_ENTITY
+    code: 422
+    contents:
+      - lang: id
+        text: Tidak dapat diproses.
+      - lang: en
+        text: The given data cannot to process.
+
+  - name: DUPLICATE_ENTRY
+    code: 409
+    contents:
+      - lang: id
+        text: duplikat data entri
+      - lang: en
+        text: Duplicate entry data.
+
+  - name: REQUEST_TIMEOUT
+    code: 408
+    contents:
+      - lang: id
+        text: Batas ambang waktu permintaan telah habis.
+      - lang: en
+        text: Request timeout.
+
+  - name: ROUTE_FAILURE
+    code: 404
+    contents:
+      - lang: id
+        text: Rute atau metode http tidak ditemukan.
+      - lang: en
+        text: Method or Route not found.
+
+  - name: INTERNAL_FAILURE
+    code: 500
+    contents:
+      - lang: id
+        text: Telah terjadi kesalahan pada sistem.
+      - lang: en
+        text: An internal service error has occurred.
+
+  - name: FORBIDDEN
+    code: 403
+    contents:
+      - lang: id
+        text: Anda tidak di izinkan untuk mengakses sumber ini, Silahkan kontak admin.
+      - lang: en
+        text: You can not access this resource. Please contact the admin!
+
+  - name: INQUIRY_FAILURE
+    code: 422
+    contents:
+      - lang: id
+        text: Gagal inquiry.
+      - lang: en
+        text: Inquiry failed.
+
+  - name: ALREADY_PAID
+    code: 409
+    contents:
+      - lang: id
+        text: Tagihan Sudah lunas.
+      - lang: en
+        text: Already Paid.
+
+  - name: PROVIDER_ERROR
+    code: 500
+    contents:
+      - lang: id
+        text: Vendor bermasalah, silahkan hubungi customer support.
+      - lang: en
+        text: Service Provider something went worng, please contact our customer service.
+
+  - name: UNKNOWN_ERROR
+    code: 500
+    contents:
+      - lang: id
+        text: Terjadi kesalahan pada sistem.
+      - lang: en
+        text: Error unknown.
+
+  - name: CUSTOMER_NOT_FOUND
+    code: 422
+    contents:
+      - lang: id
+        text: ID pelanggan tidak ditemukan
+      - lang: en
+        text: Customer id not found
+
+  - name: PRODUCT_NOT_FOUND
+    code: 422
+    contents:
+      - lang: id
+        text: produk tidak ditemukan
+      - lang: en
+        text: The product not found
+
+  - name: INVALID_CUSTOMER_ID
+    code: 422
+    contents:
+      - lang: id
+        text: id pelanggan yang anda input salah, mohon teliti kembali
+      - lang: en
+        text: The product not found
+
+  - name: PROVIDER_NUISANCE
+    code: 422
+    contents:
+      - lang: id
+        text: terjadi gangguan pada sistem Provider
+      - lang: en
+        text: system failure on service provider
+
+  - name: ORDER_PRODUCT_LOCKED
+    code: 422
+    contents:
+      - lang: id
+        text: anda hanya dapat membeli satu nominal dalam satu hari, silahkan membeli nominal yang lain atau coba kembali di hari berikutnya
+      - lang: en
+        text: you can only buy one nominal in each day, try buy another nominal or try again on the next day
+
+  - name: HEADER_INVALID_LANG
+    code: 422
+    contents:
+      - lang: id
+        text: Bahasa yang di set dalam header tidak valid
+      - lang: en
+        text: Invalid language on header set
+
+  - name: VALIDATION_INVALID_CUSTOMER_ID
+    code: 422
+    contents:
+      - lang: id
+        text: ID pelanggan tidak valid
+      - lang: en
+        text: Customer ID invalid
+
+  - name: HEADER_INVALID_CLIENT_ID
+    code: 422
+    contents:
+      - lang: id
+        text: Client ID di butuhkan dalam header
+      - lang: en
+        text: The client ID is required on header
+
+  - name: PRODUCT_UNDER_MAINTENANCE
+    code: 422
+    contents:
+      - lang: id
+        text: Produk yang di pilih sedang maintenance pada saat ini, silahkan coba yang lain
+      - lang: en
+        text: The product is under maintenance, please try another product
+
+  - name: PRODUCT_INACTIVE
+    code: 422
+    contents:
+      - lang: id
+        text: Produk yang di pilih tidak tersedia pada saat ini, silahkan coba yang lain
+      - lang: en
+        text: The product is not available, try with another product
+
+  - name: INQUIRY_NOT_AVAILABLE
+    code: 422
+    contents:
+      - lang: id
+        text: Data inquiry tidak tersedia, silahkan inquiry telebih dahulu
+      - lang: en
+        text: Inquiry data not available, please try inquiry first before the submit transaction
+
+  - name: TRANSACTION_INVALID_REFERENCE
+    code: 422
+    contents:
+      - lang: id
+        text: Transaksi gagal. kombinasi reference dan kategori salah
+      - lang: en
+        text: Transaction failed. wrong combination reference and category
+
+  - name: TOPUP_INVALID_REFERENCE
+    code: 422
+    contents:
+      - lang: id
+        text: Penambahan saldo gagal. kombinasi reference dan kategori salah
+      - lang: en
+        text: Topup failed. wrong combination reference and category
+
+  - name: TOPUP_NOT_ALLOWED
+    code: 422
+    contents:
+      - lang: id
+        text: Penambahan saldo gagal. Tipe wallet internal tidak diperbolehkan penambahan saldo
+      - lang: en
+        text: Topup failed. Wallet type internal not allowed topup balance
+
+  - name: RECALL_INVALID_REFERENCE
+    code: 422
+    contents:
+      - lang: id
+        text: Penarikan saldo gagal. kombinasi reference dan kategori salah
+      - lang: en
+        text: Recall failed. wrong combination reference and category
+
+  - name: RECALL_NOT_ALLOWED
+    code: 422
+    contents:
+      - lang: id
+        text: Penarikan saldo gagal. Tipe wallet internal tidak diperbolehkan penambahan saldo
+      - lang: en
+        text: Recall failed. Wallet type internal not allowed to recall balance
+
+  - name: WALLET_CLIENT_NOT_FOUND
+    code: 422
+    contents:
+      - lang: id
+        text: Client tidak terdaftar di wallet
+      - lang: en
+        text: Client wallet not found in our system
+
+  - name: REQUEST_SOURCE_NOT_ALLOWED
+    code: 422
+    contents:
+      - lang: id
+        text: Sumber request tidak dizinkan topup atau recall
+      - lang: en
+        text: The request source not allowed topup or recall

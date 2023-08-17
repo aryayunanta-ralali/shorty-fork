@@ -1,0 +1,208 @@
+package {{packageNamespace}}
+
+import (
+	"net/url"
+
+    "github.com/gorilla/mux"
+	"github.com/spf13/cast"
+	"github.com/thedevsaddam/govalidator"
+
+	"github.com/ralali/{{repoName}}/internal/appctx"
+    "github.com/ralali/{{repoName}}/internal/consts"
+	"github.com/ralali/{{repoName}}/internal/presentations"
+    "github.com/ralali/{{repoName}}/internal/ucase/contract"
+    "github.com/ralali/{{repoName}}/pkg/logger"
+    "github.com/ralali/{{repoName}}/pkg/tracer"
+	"github.com/ralali/{{repoName}}/pkg/util"
+)
+
+type {{lowerFunctionName}} struct {
+    // repo repositories.RepoName
+}
+
+// TO-DO: DONT FORGET TO INJECT REPO HERE IF USED!
+func New{{upperFunctionName}}() contract.UseCase {
+	return &{{lowerFunctionName}}{}
+}
+
+// TO-DO: MOVE THIS CONST TO LOG EVENT IF NOT ALREADY EXISTS
+// LogEventName{{upperFunctionName}} const
+// LogEventName{{upperFunctionName}} = `{{upperFunctionName}}`
+
+// TO-DO: MOVE THIS CONST TO LOG MESSAGE if not already exists
+// LogMessageFailedToValidateRequestBody const
+// LogMessageFailedToValidateRequestBody = `failed to validate request body, err: %v`
+
+// LogMessageDBFailedToUpdate const
+// LogMessageDBFailedToUpdate = `failed to update data into the database, err: %v`
+
+// TO-DO: MOVE THIS CONST TO LOG EVENT STATE if not already exists
+// LogEventStateValidateRequestBody constant
+// LogEventStateValidateRequestBody = "ValidateRequestBody"
+
+// LogEventStateUpdateData const
+// LogEventStateUpdateData = "UpdateData"
+
+// TO-DO: MOVE THIS CODE BELOW TO router.go
+// {{lowerFunctionName}} := {{packageNamespace}}.New{{upperFunctionName}}()
+/*
+	exV1.HandleFunc("/{route}/{id}", rtr.handle(
+		handler.HttpRequest,
+		{{lowerFunctionName}},
+		middleware.ValidateLanguage,
+		middleware.ValidateAccountID,
+		middleware.ValidateUserID,
+		middleware.ValidateUserEmail,
+	)).Methods(http.MethodPut)
+*/
+
+// Serve
+// API Contract: https://www.notion.so/ralalicom/
+func (u *{{lowerFunctionName}}) Serve(data *appctx.Data) (response appctx.Response) {
+	var (
+		ctx = tracer.SpanStartUseCase(data.Request.Context(), "Serve")
+
+		lvState1       = consts.LogEventStateValidateRequestBody
+		lfState1Status = "state_1_validate_request_status"
+
+		lvState2       = consts.LogEventStateFetchDBData
+		lfState2Status = "state_2_fetch_db_status"
+		lfState2Data   = "state_2_fetch_db_data"
+
+		lvState3       = consts.LogEventStateUpdateData
+		lfState3Status = "state_3_update_data_to_db_status"
+
+		err     error
+		id = mux.Vars(data.Request)["id"]
+		payload presentations.{{upperFunctionName}}Payload
+
+		lf = []logger.Field{
+			logger.EventName(consts.LogEventName{{upperFunctionName}}),
+		}
+	)
+
+	defer tracer.SpanFinish(ctx)
+
+	/*------------------------------
+	| STEP 1 : validate request body
+	* -----------------------------*/
+	err = data.Cast(&payload)
+	if err != nil {
+		lf = append(lf,
+			logger.EventState(lvState1),
+			logger.Any(lfState1Status, consts.LogStatusFailed),
+		)
+		logger.WarnWithContext(ctx, logger.SetMessageFormat(consts.LogMessageFailedToValidateRequestBody, err), lf...)
+		response.SetName(consts.ResponseValidationFailure)
+		return
+	}
+
+	status, ev := u.validateRequestBody(payload)
+	if status != consts.ResponseSuccess {
+		lf = append(lf,
+			logger.EventState(lvState1),
+			logger.Any(lfState1Status, consts.LogStatusFailed),
+		)
+		logger.WarnWithContext(ctx, logger.SetMessageFormat(consts.LogMessageFailedToValidateRequestBody, ev), lf...)
+		response.SetName(status)
+		response.SetError(ev)
+		return
+	}
+
+	lf = append(lf,
+		logger.Any(lfState1Status, consts.LogStatusSuccess),
+	)
+
+	/*---------------------------
+	| STEP 2 : get data from db
+	* --------------------------*/
+	// TO-DO: change the criteria as needed
+	dbData, err := u.repo.FindBy(ctx, repositories.{changeThisToRepoName}Criteria{
+		ID: cast.ToInt(id),
+	})
+
+	// TO-DO: change the "table_name" value at logger!
+	if err != nil {
+		tracer.SpanError(ctx, err)
+		lf = append(lf,
+			logger.EventState(lvState2),
+			logger.Any(lfState2Status, consts.LogStatusFailed),
+		)
+		// TO-DO: change the "table_name" value at logger!
+		logger.ErrorWithContext(ctx, logger.SetMessageFormat(consts.LogMessageDBFailedFetching, "table_name", err), lf...)
+		response.SetName(consts.ResponseInternalFailure)
+		return
+	}
+
+	if len(dbData) == 0 {
+		lf = append(lf,
+			logger.EventState(lvState2),
+			logger.Any(lfState2Status, consts.LogStatusFailed),
+		)
+		// TO-DO: change the "table_name" value at logger!
+		logger.WarnWithContext(ctx, logger.SetMessageFormat(consts.LogMessageDBDataNotFound, "table_name"), lf...)
+		response.SetName(consts.ResponseDataNotFound)
+		return
+	}
+
+	lf = append(lf,
+		logger.Any(lfState2Status, consts.LogStatusSuccess),
+		logger.Any(lfState2Data, util.DumpToString(dbData)),
+	)
+
+	/*---------------------------
+	| STEP 3 : update data to db
+	* --------------------------*/
+	updateOrder := TransformToUpdateEntity(dbData[0], payload)
+	err = u.repo.Update(ctx, updateOrder)
+	if err != nil {
+		tracer.SpanError(ctx, err)
+		lf = append(lf,
+			logger.EventState(lvState3),
+			logger.Any(lfState3Status, consts.LogStatusFailed),
+		)
+		// TO-DO: change the "table_name" value at logger!
+		logger.ErrorWithContext(ctx, logger.SetMessageFormat(consts.LogMessageDBFailedToUpdate, "table_name", err), lf...)
+		response.SetName(consts.ResponseInternalFailure)
+		return
+	}
+	
+	response.SetName(consts.ResponseSuccess).SetData(TransformToGetListResponse(dbData))
+	logger.InfoWithContext(ctx, logger.SetMessageFormat(consts.LogMessageSuccess, consts.LogEventName{{upperFunctionName}}), lf...)
+	return
+}
+
+// validateRequestBody represent function to validate request payload
+func (u *{{lowerFunctionName}}) validateRequestBody(reqBody presentations.{{upperFunctionName}}Payload) (string, url.Values) {
+	// TO-DO: MOVE RULES BELOW TO VALIDATOR RULE CONSTANTS IF NOT ALREADY EXISTS
+	RulesName := []string{"required", "min:3", "max:255"}
+
+	rules := govalidator.MapData{
+		"name": RulesName,
+	}
+
+	options := govalidator.Options{
+		Data:          &reqBody,
+		Rules:         rules,
+		TagIdentifier: "json",
+	}
+
+	v := govalidator.New(options)
+	ev := v.ValidateStruct()
+	if len(ev) != 0 {
+		return consts.ResponseValidationFailure, ev
+	}
+
+	return consts.ResponseSuccess, nil
+}
+
+// YOU CAN ALSO MOVE THIS FUNCTION TO DTO
+// TO-DO: CHANGE INTERFACE TO ENTITY TO BE UPDATED
+func TransformToUpdateEntity(body interface{}, payload presentations.{{upperFunctionName}}Payload) interface{} {
+	return ""
+
+	/* sample:
+		body.Name = payload.Name
+		return body
+	*/
+}

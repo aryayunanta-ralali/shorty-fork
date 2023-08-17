@@ -1,0 +1,158 @@
+package repositories
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"strings"
+
+	"github.com/spf13/cast"
+
+	"github.com/ralali/{{repoName}}/internal/entity"
+	"github.com/ralali/{{repoName}}/pkg/mariadb"
+	"github.com/ralali/{{repoName}}/pkg/tracer"
+)
+
+// MOVE TEMPLATE CONTRACT BELOW TO contract.go FILE
+type {{modelName}} interface{
+	FindBy(ctx context.Context, cri Find{{modelName}}Criteria) ([]entity.{{modelName}}, error)
+	Insert(ctx context.Context, data entity.{{modelName}}) error
+	Update(ctx context.Context, data entity.{{modelName}}) error
+}
+
+// MOVE THIS INITIALIZATION TO router.go FILE IF NEEDED
+// {{functionName}}Repo := repositories.New{{modelName}}Repo(db)
+
+type {{functionName}}Repo struct {
+	db mariadb.Adapter
+	tx DBTransaction
+}
+
+func New{{modelName}}Repo(db mariadb.Adapter) {{modelName}} {
+	return &{{functionName}}Repo{
+		db: db,
+		tx: NewTxDB(db),
+	}
+}
+
+type Find{{modelName}}Criteria struct {
+	ID int
+	IDs []int
+	Limit int64
+	Offset int64
+}
+
+func (s *{{functionName}}Repo) FindBy(ctx context.Context, cri Find{{modelName}}Criteria) ([]entity.{{modelName}}, error) {
+	ctx = tracer.SpanStartRepositories(ctx, "{{fileName}}.FindBy")
+	defer tracer.SpanFinish(ctx)
+
+	// check again for the table name, make sure it was correct
+	res := []entity.{{modelName}}{}
+	q :=
+		`
+		SELECT
+  			id
+		FROM
+			{{fileName}}
+		WHERE
+			deleted_at = '0000-00-00 00:00:00'
+		`
+
+	q, vals := s.applyFindCriteria(q, cri)
+
+	err := s.db.Fetch(ctx, &res, q, vals...)
+
+	if err != nil {
+		tracer.SpanError(ctx, err)
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (s *{{functionName}}Repo) Insert(ctx context.Context, data entity.{{modelName}}) error {
+	ctx = tracer.SpanStartRepositories(ctx, "{{fileName}}.Insert")
+	defer tracer.SpanFinish(ctx)
+
+	err := s.tx.ExecTX(ctx, &sql.TxOptions{Isolation: sql.LevelRepeatableRead}, func(ctx context.Context, tx StoreTX) error {
+		_, err := tx.Store(ctx, entity.TableName{{modelName}}, data)
+
+		if err != nil {
+			return fmt.Errorf("insert {{modelName}} err: %v", err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		tracer.SpanError(ctx, err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *{{functionName}}Repo) Update(ctx context.Context, data entity.{{modelName}}) error {
+	newCtx := tracer.SpanStartRepositories(ctx, "{{fileName}}.Update")
+	defer tracer.SpanFinish(newCtx)
+
+	err := s.tx.ExecTX(newCtx, &sql.TxOptions{Isolation: sql.LevelRepeatableRead}, func(ctx context.Context, tx StoreTX) error {
+		_, err := tx.Update(ctx, entity.TableName{{modelName}}, data, []WhereCondition{
+			{
+				Column:   "id",
+				Operator: "=",
+				Value:    cast.ToString(data.ID),
+			},
+		})
+
+		if err != nil {
+			return fmt.Errorf("update {{modelName}} err: %v", err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		tracer.SpanError(ctx, err)
+		return err
+	}
+
+	return nil
+}
+
+
+func (s *{{functionName}}Repo) applyFindCriteria(q string, cri Find{{modelName}}Criteria) (qry string, vals []interface{}) {
+	additionalQry := ""
+	additionalQry2 := ""
+
+	vals = make([]interface{}, 0)
+
+	if cri.ID != 0 {
+		additionalQry += ` AND id = ?`
+        vals = append(vals, cri.ID)
+	}
+
+	if len(cri.IDs) > 0 {
+		additionalQry += ` AND id IN (?` + strings.Repeat(",?", len(cri.IDs)-1) + `)`
+
+		for _, v := range cri.IDs {
+			vals = append(vals, v)
+		}
+	}
+
+	q = fmt.Sprintf("%s %s", q, additionalQry)
+
+	if cri.Limit != 0 {
+		additionalQry2 = " LIMIT ?"
+		vals = append(vals, cri.Limit)
+
+		if cri.Offset != 0 {
+			additionalQry2 = fmt.Sprintf("%s %s", additionalQry2, " OFFSET ?")
+			vals = append(vals, cri.Offset)
+		}
+	}
+
+	q = fmt.Sprintf("%s %s", q, additionalQry2)
+
+	return q, vals
+}

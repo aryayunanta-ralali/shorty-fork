@@ -1,0 +1,6 @@
+package presentations
+
+// {{upperFunctionName}}Payload const
+type {{upperFunctionName}}Payload struct {
+	Name string `json:"name"`
+}

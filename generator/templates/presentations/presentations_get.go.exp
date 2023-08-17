@@ -1,0 +1,12 @@
+package presentations
+
+// {{upperFunctionName}}Payload const
+type {{upperFunctionName}}Payload struct {
+	Page int64 `json:"page"`
+	Limit int64 `json:"limit"`
+}
+
+// {{upperFunctionName}}Response const
+type {{upperFunctionName}}Response struct {
+	ID int64 `json:"id"`
+}

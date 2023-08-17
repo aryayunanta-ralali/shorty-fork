@@ -1,0 +1,36 @@
+# Note: Builspec name buildspec-migration-core-api-dev.yml
+version: 0.2
+phases:
+  install:
+    commands:
+      - echo install steps...
+  pre_build:
+    commands:
+      - ls -la
+
+      - echo Check AWS, Git, Python version
+      - aws --version && git --version && python --version
+      - echo Check ENV Variable
+      - printenv
+
+      - pwd
+
+      - cp config/app.yaml.tpl config/app.yaml
+
+      - echo generate .env faster with ssm script
+      - aws s3 cp s3://rll-environment-dev/ssmgetterboto3_aurora.py ssmgetterboto3.py
+      - python3 ssmgetterboto3.py shorty sed config/app.yaml True migration
+      - rm ssmgetterboto3.py
+
+      - echo Logging into AWS ECR...
+      - $(aws ecr get-login --no-include-email --region ap-southeast-1)
+      # Note :                                                             rll-core-api-dev
+      - REPOSITORY_URI=518667233221.dkr.ecr.ap-southeast-1.amazonaws.com/shorty-dev
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+  build:
+    commands:
+      - echo  pulling latest docker images.
+      - echo build Docker image
+      - docker pull $REPOSITORY_URI:$IMAGE_TAG
+      - docker run -v $PWD/config:/opt/shorty/config $REPOSITORY_URI:$IMAGE_TAG /bin/bash -c "/opt/shorty/shorty db:migrate up"
