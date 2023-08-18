@@ -29,10 +29,11 @@ func NewShortUrlsRepo(db mariadb.Adapter) ShortUrls {
 }
 
 type FindShortUrlsCriteria struct {
-	ID     int
-	IDs    []int
-	Limit  int64
-	Offset int64
+	ID        int
+	ShortCode string
+	IDs       []int
+	Limit     int64
+	Offset    int64
 }
 
 func (s *shortUrlsRepo) FindBy(ctx context.Context, cri FindShortUrlsCriteria) ([]entity.ShortUrls, error) {
@@ -128,6 +129,11 @@ func (s *shortUrlsRepo) applyFindCriteria(q string, cri FindShortUrlsCriteria) (
 	if cri.ID != 0 {
 		additionalQry += ` AND id = ?`
 		vals = append(vals, cri.ID)
+	}
+
+	if cri.ShortCode != "" {
+		additionalQry += ` AND short_code = ?`
+		vals = append(vals, cri.ShortCode)
 	}
 
 	if len(cri.IDs) > 0 {

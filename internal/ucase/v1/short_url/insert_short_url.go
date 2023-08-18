@@ -2,7 +2,9 @@ package short_url
 
 import (
 	"github.com/aryayunanta-ralali/shorty/internal/dto"
+	"github.com/aryayunanta-ralali/shorty/internal/entity"
 	"github.com/aryayunanta-ralali/shorty/internal/repositories"
+	"github.com/aryayunanta-ralali/shorty/pkg/util"
 	"github.com/thedevsaddam/govalidator"
 	"net/url"
 
@@ -35,8 +37,11 @@ func (u *insertShortUrl) Serve(data *appctx.Data) (response appctx.Response) {
 		lvState1       = consts.LogEventStateValidateRequestBody
 		lfState1Status = "state_1_validate_request_status"
 
-		lvState2       = consts.LogEventStateInsertData
-		lfState2Status = "state_2_insert_to_db_status"
+		lvState2       = consts.LogEventStateCheckExistingData
+		lfState2Status = "state_2_check_existing_data_status"
+
+		lvState3       = consts.LogEventStateInsertData
+		lfState3Status = "state_3_insert_to_db_status"
 
 		err     error
 		payload presentations.InsertShortUrlPayload
@@ -82,16 +87,54 @@ func (u *insertShortUrl) Serve(data *appctx.Data) (response appctx.Response) {
 		logger.Any(lfState1Status, consts.LogStatusSuccess),
 	)
 
+	/*------------------------------
+	| STEP 2: Check data existing by short code
+	* -----------------------------*/
+	shortUrl, err := u.shortUrlRepo.FindBy(ctx, repositories.FindShortUrlsCriteria{
+		ShortCode: payload.ShortCode,
+		Limit:     1,
+	})
+	if err != nil {
+		tracer.SpanError(ctx, err)
+		lf = append(lf,
+			logger.EventState(lvState2),
+			logger.Any(lfState2Status, consts.LogStatusFailed),
+		)
+		logger.ErrorWithContext(ctx, logger.SetMessageFormat(consts.LogMessageDBFailedFetching, entity.TableNameShortUrls, err), lf...)
+		response.SetName(consts.ResponseInternalFailure)
+		return
+	}
+
+	if len(shortUrl) != 0 {
+		lf = append(lf,
+			logger.Any(lfState2Status, consts.LogStatusFounded),
+			logger.EventOutputHttp(response.GetCode(), response, util.DumpToString(response)),
+		)
+		logger.InfoWithContext(ctx,
+			logger.SetMessageFormat("short url with code %s already exist", payload.ShortCode),
+			lf...,
+		)
+		response.SetName(consts.ResponseValidationFailure)
+		response.SetError(
+			map[string][]string{"short_url": {"The given short code is already exists"}},
+		)
+		return
+	}
+
+	lf = append(lf,
+		logger.Any(lfState2Status, consts.LogStatusSuccess),
+	)
+
 	/*---------------------------
-	| STEP 2 : insert data from db
+	| STEP 3 : insert data from db
 	* --------------------------*/
 	dataInsert := dto.TransformToInsertEntity(payload, u.generatorID())
 	err = u.shortUrlRepo.Insert(ctx, dataInsert)
 	if err != nil {
 		tracer.SpanError(ctx, err)
 		lf = append(lf,
-			logger.EventState(lvState2),
-			logger.Any(lfState2Status, consts.LogStatusFailed),
+			logger.EventState(lvState3),
+			logger.Any(lfState3Status, consts.LogStatusFailed),
 		)
 		logger.ErrorWithContext(ctx, logger.SetMessageFormat(consts.LogMessageDBFailedToStore, "table_name", err), lf...)
 		response.SetName(consts.ResponseInternalFailure)
