@@ -10,4 +10,7 @@ const (
 
 	// HeaderContentTypeJSON const
 	HeaderContentTypeJSON = `application/json`
+
+	// HeaderXUserID const
+	HeaderXUserID = `X-User-ID`
 )

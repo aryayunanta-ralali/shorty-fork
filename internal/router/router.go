@@ -2,26 +2,31 @@
 package router
 
 import (
-    "context"
+	"context"
 	"encoding/json"
+	"github.com/aryayunanta-ralali/shorty/internal/repositories"
+	"github.com/aryayunanta-ralali/shorty/internal/ucase/v1/endpoint"
+	"github.com/aryayunanta-ralali/shorty/internal/ucase/v1/short_url"
+	"github.com/aryayunanta-ralali/shorty/pkg/generator"
+	"github.com/gorilla/mux"
 	"net/http"
 	"runtime/debug"
 	"time"
 
 	"github.com/aryayunanta-ralali/shorty/internal/appctx"
-    "github.com/aryayunanta-ralali/shorty/internal/bootstrap"
-    "github.com/aryayunanta-ralali/shorty/internal/consts"
-    "github.com/aryayunanta-ralali/shorty/internal/handler"
-    "github.com/aryayunanta-ralali/shorty/internal/middleware"
-    "github.com/aryayunanta-ralali/shorty/internal/ucase"
-    "github.com/aryayunanta-ralali/shorty/pkg/logger"
-    "github.com/aryayunanta-ralali/shorty/pkg/routerkit"
+	"github.com/aryayunanta-ralali/shorty/internal/bootstrap"
+	"github.com/aryayunanta-ralali/shorty/internal/consts"
+	"github.com/aryayunanta-ralali/shorty/internal/handler"
+	"github.com/aryayunanta-ralali/shorty/internal/middleware"
+	"github.com/aryayunanta-ralali/shorty/internal/ucase"
+	"github.com/aryayunanta-ralali/shorty/pkg/logger"
+	"github.com/aryayunanta-ralali/shorty/pkg/routerkit"
 
-    //"github.com/aryayunanta-ralali/shorty/pkg/mariadb"
-    //"github.com/aryayunanta-ralali/shorty/internal/repositories"
-    //"github.com/aryayunanta-ralali/shorty/internal/ucase/example"
+	//"github.com/aryayunanta-ralali/shorty/pkg/mariadb"
+	//"github.com/aryayunanta-ralali/shorty/internal/repositories"
+	//"github.com/aryayunanta-ralali/shorty/internal/ucase/example"
 
-    ucaseContract "github.com/aryayunanta-ralali/shorty/internal/ucase/contract"
+	ucaseContract "github.com/aryayunanta-ralali/shorty/internal/ucase/contract"
 )
 
 type router struct {
@@ -122,30 +127,42 @@ func (rtr *router) Route() *routerkit.Router {
 
 	root := rtr.router.PathPrefix("/").Subrouter()
 	in := root.PathPrefix("/in/").Subrouter()
-	//inV1 := in.PathPrefix("/v1/").Subrouter()
+	inV1 := in.PathPrefix("/v1/").Subrouter()
 
-    // open tracer setup
-    bootstrap.RegistryOpenTracing(rtr.config)
+	// open tracer setup
+	bootstrap.RegistryOpenTracing(rtr.config)
 
-	// db := bootstrap.RegistryMariaMasterSlave(rtr.config.WriteDB, rtr.config.ReadDB)
-
+	db := bootstrap.RegistryMariaMasterSlave(rtr.config.WriteDB, rtr.config.ReadDB, rtr.config.App.Timezone)
 
 	// use case
 	healthy := ucase.NewHealthCheck()
 
+	repoShortUrl := repositories.NewShortUrlsRepo(db)
+
+	insertShortUrl := short_url.NewInsertShortUrl(generator.GenerateInt64, repoShortUrl)
+	listEndpoint := endpoint.NewGetList()
+
 	// healthy
+	in.HandleFunc("/", rtr.handle(
+		handler.HttpRequest,
+		listEndpoint,
+	)).Methods(http.MethodGet)
+
 	in.HandleFunc("/health", rtr.handle(
 		handler.HttpRequest,
 		healthy,
 	)).Methods(http.MethodGet)
 
-	// this is use case for example purpose, please delete
-	//repoExample := repositories.NewExample(db)
-	//el := example.NewExampleList(repoExample)
-	//ec := example.NewPartnerCreate(repoExample)
-	//ed := example.NewExampleDelete(repoExample)
+	inV1.HandleFunc("/short-urls", rtr.handle(
+		handler.HttpRequest,
+		insertShortUrl,
+	)).Methods(http.MethodPost)
 
-	// TODO: create your route here
+	in.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+		tmpl, _ := route.GetPathTemplate()
+		consts.Endpoints = append(consts.Endpoints, tmpl)
+		return nil
+	})
 
 	// this route for example rest, please delete
 	// example list
