@@ -1,6 +1,7 @@
 package endpoint
 
 import (
+	"github.com/aryayunanta-ralali/shorty/internal/dto"
 	"github.com/aryayunanta-ralali/shorty/internal/presentations"
 	"net/url"
 
@@ -20,21 +21,6 @@ func NewGetList() contract.UseCase {
 	return &getList{}
 }
 
-// TO-DO: MOVE THIS CODE BELOW TO router.go
-// getList := endpoint.NewGetList()
-/*
-	exV1.HandleFunc("/{route}", rtr.handle(
-		handler.HttpRequest,
-		getList,
-		middleware.ValidateLanguage,
-		middleware.ValidateAccountID,
-		middleware.ValidateUserID,
-		middleware.ValidateUserEmail,
-	)).Methods(http.MethodGet)
-*/
-
-// Serve
-// API Contract: https://www.notion.so/ralalicom/
 func (u *getList) Serve(data *appctx.Data) (response appctx.Response) {
 	var (
 		ctx = tracer.SpanStartUseCase(data.Request.Context(), "Serve")
@@ -86,7 +72,7 @@ func (u *getList) Serve(data *appctx.Data) (response appctx.Response) {
 	| STEP 2 : get data from constant
 	* --------------------------*/
 
-	response.SetName(consts.ResponseSuccess).SetData(TransformToGetListResponse(consts.Endpoints))
+	response.SetName(consts.ResponseSuccess).SetData(dto.TransformToGetListResponse(consts.Endpoints))
 	logger.InfoWithContext(ctx, logger.SetMessageFormat(consts.LogMessageSuccess, consts.LogEventNameGetList), lf...)
 	return
 }
@@ -116,23 +102,6 @@ func (u *getList) validateRequestBody(reqBody presentations.GetListPayload) (str
 
 	return consts.ResponseSuccess, nil
 }
-
-// YOU CAN ALSO MOVE THIS FUNCTION TO DTO
-// TO-DO: CHANGE INTERFACE TO ARRAY OF ENTITY REPOSITORY RESPONSE
-func TransformToGetListResponse(data []string) *presentations.GetListResponses {
-	var resp []presentations.GetListResponse
-
-	for _, val := range data {
-		currData := presentations.GetListResponse{
-			URL: val,
-		}
-
-		resp = append(resp, currData)
-	}
-
-	return &presentations.GetListResponses{Endpoints: resp}
-}
-
 func getOffset(page int64, limit int64) int64 {
 	if page < 1 {
 		return 0
