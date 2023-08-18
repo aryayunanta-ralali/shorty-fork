@@ -10,3 +10,7 @@ type GetListPayload struct {
 type GetListResponse struct {
 	URL string `json:"url"`
 }
+
+type GetListResponses struct {
+	Endpoints []GetListResponse `json:"endpoints"`
+}

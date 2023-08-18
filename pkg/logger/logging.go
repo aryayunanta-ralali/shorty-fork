@@ -2,8 +2,8 @@
 package logger
 
 import (
-	"fmt"
 	"context"
+	"fmt"
 
 	"github.com/sirupsen/logrus"
 
@@ -18,7 +18,6 @@ type Field struct {
 
 // FieldFunc log
 type FieldFunc func(key string, value interface{}) *Field
-
 
 type Fields []Field
 
@@ -70,8 +69,26 @@ func EventId(v interface{}) Field {
 	}
 }
 
+func EventOutputHttp(vStatusCode interface{}, vObject interface{}, vBodyRaw interface{}) Field {
+	output := map[string]interface{}{
+		"http": map[string]interface{}{
+			"response": map[string]interface{}{
+				"http_status": vStatusCode,
+				"body": map[string]interface{}{
+					"object": vObject,
+					"raw":    vBodyRaw,
+				},
+			},
+		},
+	}
+	return Field{
+		Key:   "output",
+		Value: output,
+	}
+}
+
 // SetMessageFormat message with custom argument
-func SetMessageFormat(format string, args ...interface{})  interface{} {
+func SetMessageFormat(format string, args ...interface{}) interface{} {
 	return fmt.Sprintf(format, args...)
 }
 
@@ -94,42 +111,41 @@ func Error(arg interface{}, fl ...Field) {
 	}).Error(arg)
 }
 
-func Info( arg interface{}, fl ...Field ) {
+func Info(arg interface{}, fl ...Field) {
 	logrus.WithFields(map[string]interface{}{
 		"event": extract(fl...),
 	}).Info(arg)
 }
 
-func Debug( arg interface{}, fl ...Field ) {
+func Debug(arg interface{}, fl ...Field) {
 	logrus.WithFields(map[string]interface{}{
 		"event": extract(fl...),
 	}).Debug(arg)
 }
 
-
 // Fatal log
-func Fatal( arg interface{}, fl ...Field ) {
+func Fatal(arg interface{}, fl ...Field) {
 	logrus.WithFields(map[string]interface{}{
 		"event": extract(fl...),
 	}).Fatal(arg)
 }
 
 // Warn log
-func Warn( arg interface{}, fl ...Field ) {
+func Warn(arg interface{}, fl ...Field) {
 	logrus.WithFields(map[string]interface{}{
 		"event": extract(fl...),
 	}).Warn(arg)
 }
 
 // Trace log
-func Trace( arg interface{}, fl ...Field ) {
+func Trace(arg interface{}, fl ...Field) {
 	logrus.WithFields(map[string]interface{}{
 		"event": extract(fl...),
 	}).Trace(arg)
 }
 
 // AccessLog http accessing log
-func AccessLog(arg interface{}, fl ...Field)  {
+func AccessLog(arg interface{}, fl ...Field) {
 	logrus.WithFields(extract(fl...)).Info(arg)
 }
 
@@ -167,7 +183,6 @@ func TraceWithContext(ctx context.Context, arg interface{}, fl ...Field) {
 		"event": extract(fl...),
 	})).WithContext(ctx).Trace(arg)
 }
-
 
 func extractContext(i interface{}, logField map[string]interface{}) map[string]interface{} {
 	if util.IsSameType(i, logField) {

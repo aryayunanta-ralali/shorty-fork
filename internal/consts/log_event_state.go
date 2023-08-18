@@ -7,6 +7,9 @@ const (
 	// LogEventStateInsertData const
 	LogEventStateInsertData = "InsertDataToDB"
 
+	// LogEventStateCheckExistingData const
+	LogEventStateCheckExistingData = "CheckExistingData"
+
 	// LogEventStateFetchDBData constant
 	LogEventStateFetchDBData = "FetchDBData"
 )
