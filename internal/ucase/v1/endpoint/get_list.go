@@ -83,7 +83,7 @@ func (u *getList) Serve(data *appctx.Data) (response appctx.Response) {
 	)
 
 	/*---------------------------
-	| STEP 2 : get data from db
+	| STEP 2 : get data from constant
 	* --------------------------*/
 
 	response.SetName(consts.ResponseSuccess).SetData(TransformToGetListResponse(consts.Endpoints))
@@ -119,7 +119,7 @@ func (u *getList) validateRequestBody(reqBody presentations.GetListPayload) (str
 
 // YOU CAN ALSO MOVE THIS FUNCTION TO DTO
 // TO-DO: CHANGE INTERFACE TO ARRAY OF ENTITY REPOSITORY RESPONSE
-func TransformToGetListResponse(data []string) []presentations.GetListResponse {
+func TransformToGetListResponse(data []string) *presentations.GetListResponses {
 	var resp []presentations.GetListResponse
 
 	for _, val := range data {
@@ -130,7 +130,7 @@ func TransformToGetListResponse(data []string) []presentations.GetListResponse {
 		resp = append(resp, currData)
 	}
 
-	return resp
+	return &presentations.GetListResponses{Endpoints: resp}
 }
 
 func getOffset(page int64, limit int64) int64 {
