@@ -1,0 +1,16 @@
+### List endpoints
+GET http://localhost:8081/in/
+Accept: application/json
+
+### Healthcheck
+GET http://localhost:8081/in/health
+Accept: application/json
+
+### Create short url
+POST http://localhost:8081/in/v1/short-urls
+Content-Type: application/json
+
+{
+  "url": "http://www.example.com/index.html",
+  "short_code": "ralali"
+}
