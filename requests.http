@@ -14,3 +14,7 @@ Content-Type: application/json
   "url": "http://www.example.com/index.html",
   "short_code": "ralali"
 }
+
+### Get short url
+GET http://localhost:8081/in/v1/short-urls/ralali
+Accept: application/json

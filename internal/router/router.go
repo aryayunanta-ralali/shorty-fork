@@ -140,6 +140,7 @@ func (rtr *router) Route() *routerkit.Router {
 	repoShortUrl := repositories.NewShortUrlsRepo(db)
 
 	insertShortUrl := short_url.NewInsertShortUrl(generator.GenerateInt64, repoShortUrl)
+	detailShortUrl := short_url.NewDetailShortUrl(repoShortUrl)
 	listEndpoint := endpoint.NewGetList()
 
 	// healthy
@@ -157,6 +158,11 @@ func (rtr *router) Route() *routerkit.Router {
 		handler.HttpRequest,
 		insertShortUrl,
 	)).Methods(http.MethodPost)
+
+	inV1.HandleFunc("/short-urls/{short_code:[a-zA-Z0-9]{1,255}}", rtr.handle(
+		handler.HttpRequest,
+		detailShortUrl,
+	)).Methods(http.MethodGet)
 
 	in.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		tmpl, _ := route.GetPathTemplate()

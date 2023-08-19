@@ -6,4 +6,7 @@ const (
 
 	// LogEventNameGetList const
 	LogEventNameGetList = `GetList`
+
+	// LogEventNameDetailShortUrl const
+	LogEventNameDetailShortUrl = `DetailShortUrl`
 )

@@ -120,6 +120,30 @@ func (s *shortUrlsRepo) Update(ctx context.Context, data entity.ShortUrls) error
 	return nil
 }
 
+func (s *shortUrlsRepo) IncrementViewCount(ctx context.Context, id int64) error {
+	newCtx := tracer.SpanStartRepositories(ctx, "short_urls.IncrementViewCount")
+	defer tracer.SpanFinish(newCtx)
+
+	q := "UPDATE short_urls SET visit_count = visit_count + 1 WHERE id = ?"
+
+	err := s.tx.ExecTX(newCtx, &sql.TxOptions{Isolation: sql.LevelRepeatableRead}, func(ctx context.Context, tx StoreTX) error {
+		_, err := tx.Execute(ctx, q, id)
+
+		if err != nil {
+			return fmt.Errorf("increment view count ShortUrls err: %v", err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		tracer.SpanError(ctx, err)
+		return err
+	}
+
+	return nil
+}
+
 func (s *shortUrlsRepo) applyFindCriteria(q string, cri FindShortUrlsCriteria) (qry string, vals []interface{}) {
 	additionalQry := ""
 	additionalQry2 := ""

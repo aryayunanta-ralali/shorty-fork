@@ -16,4 +16,7 @@ const (
 
 	// LogMessageDBDataNotFound const
 	LogMessageDBDataNotFound = `%v data is not found in the database`
+
+	// LogMessageDBFailedToUpdate const
+	LogMessageDBFailedToUpdate = `failed to update data into the database, err: %v`
 )
