@@ -8,5 +8,5 @@ var (
 	RulesURL = []string{"required", "url", "min:3", "max:255"}
 
 	// RulesShortCodeURL rules
-	RulesShortCodeURL = []string{"required", "min:3", "max:255"}
+	RulesShortCodeURL = []string{"required", "min:1", "max:255"}
 )

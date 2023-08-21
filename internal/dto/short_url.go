@@ -26,3 +26,12 @@ func TransformToDetailShortUrlResponse(data entity.ShortUrls) presentations.Deta
 		UpdatedAt:  data.UpdatedAt.Format(consts.LayoutDateTimeFormat),
 	}
 }
+
+func TransformToUpdateEntity(body entity.ShortUrls, payload presentations.UpdateShortUrlPayload) entity.ShortUrls {
+	// Skip updating visit count field (omitempty)
+	body.VisitCount = 0
+
+	// Update
+	body.ShortCode = payload.ShortCode
+	return body
+}

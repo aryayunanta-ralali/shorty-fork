@@ -8,6 +8,9 @@ const (
 	// LogMessageFailedToValidateRequestBody const
 	LogMessageFailedToValidateRequestBody = `failed to validate request body, err: %v`
 
+	// LogMessageAuthenticationError const
+	LogMessageAuthenticationError = `authentication error`
+
 	// LogMessageDBFailedToStore const
 	LogMessageDBFailedToStore = `failed to store %v data into the database, err: %v`
 

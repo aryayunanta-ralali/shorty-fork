@@ -9,4 +9,7 @@ const (
 
 	// LogEventNameDetailShortUrl const
 	LogEventNameDetailShortUrl = `DetailShortUrl`
+
+	// LogEventNameUpdateShortUrl const
+	LogEventNameUpdateShortUrl = `UpdateShortUrl`
 )
