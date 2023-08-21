@@ -6,13 +6,6 @@ import (
 	"github.com/aryayunanta-ralali/shorty/internal/entity"
 )
 
-type ShortUrls interface {
-	FindBy(ctx context.Context, cri FindShortUrlsCriteria) ([]entity.ShortUrls, error)
-	Insert(ctx context.Context, data entity.ShortUrls) error
-	Update(ctx context.Context, data entity.ShortUrls) error
-	IncrementViewCount(ctx context.Context, id int64) error
-}
-
 type DBTransaction interface {
 	ExecTX(ctx context.Context, options *sql.TxOptions, fn func(context.Context, StoreTX) error) error
 }
@@ -23,4 +16,11 @@ type StoreTX interface {
 	Update(ctx context.Context, tableName string, entity interface{}, whereConditions []WhereCondition) (affected int64, err error)
 	StoreBulk(ctx context.Context, tableName string, entity interface{}) (int64, error)
 	Upsert(ctx context.Context, tableName string, entity interface{}, onUpdate []WhereCondition) (affected int64, err error)
+}
+
+type ShortUrls interface {
+	FindBy(ctx context.Context, cri FindShortUrlsCriteria) ([]entity.ShortUrls, error)
+	Insert(ctx context.Context, data entity.ShortUrls) error
+	Update(ctx context.Context, data entity.ShortUrls) error
+	IncrementViewCount(ctx context.Context, id int64) error
 }

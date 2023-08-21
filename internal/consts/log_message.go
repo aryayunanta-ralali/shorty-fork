@@ -9,7 +9,7 @@ const (
 	LogMessageFailedToValidateRequestBody = `failed to validate request body, err: %v`
 
 	// LogMessageDBFailedToStore const
-	LogMessageDBFailedToStore = `failed to store data into the database, err: %v`
+	LogMessageDBFailedToStore = `failed to store %v data into the database, err: %v`
 
 	// LogMessageDBFailedFetching const
 	LogMessageDBFailedFetching = `failed fetching %v data from the database, err: %v`
@@ -18,5 +18,5 @@ const (
 	LogMessageDBDataNotFound = `%v data is not found in the database`
 
 	// LogMessageDBFailedToUpdate const
-	LogMessageDBFailedToUpdate = `failed to update data into the database, err: %v`
+	LogMessageDBFailedToUpdate = `failed to %v update data into the database, err: %v`
 )
