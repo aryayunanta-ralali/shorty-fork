@@ -41,8 +41,11 @@ func (u *updateShortUrl) Serve(data *appctx.Data) (response appctx.Response) {
 		lvState3       = consts.LogEventStateCheckUserID
 		lfState3Status = "state_3_check_user_id_status"
 
-		lvState4       = consts.LogEventStateUpdateData
-		lfState4Status = "state_4_update_data_to_db_status"
+		lvState4       = consts.LogEventStateCheckExistingData
+		lfState4Status = "state_2_check_existing_data_status"
+
+		lvState5       = consts.LogEventStateUpdateData
+		lfState5Status = "state_4_update_data_to_db_status"
 
 		err       error
 		shortCode = mux.Vars(data.Request)["short_code"]
@@ -135,16 +138,54 @@ func (u *updateShortUrl) Serve(data *appctx.Data) (response appctx.Response) {
 		return
 	}
 
+	/*------------------------------
+	| STEP 4: Check data existing by short code
+	* -----------------------------*/
+	newShortUrls, err := u.shortUrlRepo.FindBy(ctx, repositories.FindShortUrlsCriteria{
+		ShortCode: payload.ShortCode,
+		Limit:     1,
+	})
+	if err != nil {
+		tracer.SpanError(ctx, err)
+		lf = append(lf,
+			logger.EventState(lvState4),
+			logger.Any(lfState4Status, consts.LogStatusFailed),
+		)
+		logger.ErrorWithContext(ctx, logger.SetMessageFormat(consts.LogMessageDBFailedFetching, entity.TableNameShortUrls, err), lf...)
+		response.SetName(consts.ResponseInternalFailure)
+		return
+	}
+
+	if len(newShortUrls) != 0 {
+		lf = append(lf,
+			logger.Any(lfState4Status, consts.LogStatusFounded),
+			logger.EventOutputHttp(response.GetCode(), response, util.DumpToString(response)),
+		)
+		logger.InfoWithContext(ctx,
+			logger.SetMessageFormat("short url with code %s already exist", payload.ShortCode),
+			lf...,
+		)
+		response.SetName(consts.ResponseValidationFailure)
+		response.SetError(
+			map[string][]string{"short_url": {"The given short code is already exists"}},
+		)
+		return
+	}
+
+	lf = append(lf,
+		logger.Any(lfState4Status, consts.LogStatusSuccess),
+	)
+
 	/*---------------------------
-	| STEP 4 : update data to db
+	| STEP 5 : update data to db
 	* --------------------------*/
 	updateOrder := dto.TransformToUpdateEntity(shortUrl, payload)
 	err = u.shortUrlRepo.Update(ctx, updateOrder)
 	if err != nil {
 		tracer.SpanError(ctx, err)
 		lf = append(lf,
-			logger.EventState(lvState4),
-			logger.Any(lfState4Status, consts.LogStatusFailed),
+			logger.EventState(lvState5),
+			logger.Any(lfState5Status, consts.LogStatusFailed),
 		)
 		logger.ErrorWithContext(ctx, logger.SetMessageFormat(consts.LogMessageDBFailedToUpdate, entity.TableNameShortUrls, err), lf...)
 		response.SetName(consts.ResponseInternalFailure)

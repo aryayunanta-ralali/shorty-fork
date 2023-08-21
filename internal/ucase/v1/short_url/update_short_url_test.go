@@ -182,6 +182,80 @@ func TestUpdateShortUrl(t *testing.T) {
 			},
 		},
 		{
+			testName: "Test error check existing by short code",
+			configureInput: func() *appctx.Data {
+				vars := map[string]string{
+					"short_code": shortUrlWithUserID.ShortCode,
+				}
+
+				hReqBody, _ := json.Marshal(presentations.UpdateShortUrlPayload{
+					ShortCode: "test-new",
+				})
+				hReq := httptest.NewRequest(http.MethodPut, endpoint, bytes.NewBuffer(hReqBody))
+				hReq.Header.Set(consts.HeaderContentTypeKey, consts.HeaderContentTypeJSON)
+				hReq.Header.Set(consts.HeaderXUserID, shortUrlWithUserID.UserID)
+				hReq = mux.SetURLVars(hReq, vars)
+
+				return &appctx.Data{
+					Request:     hReq,
+					ServiceType: consts.ServiceTypeHTTP,
+				}
+			},
+			expected: output{
+				appctx.Response{
+					Name: consts.ResponseInternalFailure,
+				},
+			},
+			configureMock: func(mc mockConfig) {
+				mc.shortUrlRepo.EXPECT().FindBy(ctx, repositories.FindShortUrlsCriteria{
+					ShortCode: shortUrlWithUserID.ShortCode,
+					Limit:     1,
+				}).Return([]entity.ShortUrls{shortUrlWithUserID}, nil)
+
+				mc.shortUrlRepo.EXPECT().FindBy(ctx, repositories.FindShortUrlsCriteria{
+					ShortCode: "test-new",
+					Limit:     1,
+				}).Return(nil, errDummy)
+			},
+		},
+		{
+			testName: "Test already exist check existing by short code",
+			configureInput: func() *appctx.Data {
+				vars := map[string]string{
+					"short_code": shortUrlWithUserID.ShortCode,
+				}
+
+				hReqBody, _ := json.Marshal(presentations.UpdateShortUrlPayload{
+					ShortCode: "test-new",
+				})
+				hReq := httptest.NewRequest(http.MethodPut, endpoint, bytes.NewBuffer(hReqBody))
+				hReq.Header.Set(consts.HeaderContentTypeKey, consts.HeaderContentTypeJSON)
+				hReq.Header.Set(consts.HeaderXUserID, shortUrlWithUserID.UserID)
+				hReq = mux.SetURLVars(hReq, vars)
+
+				return &appctx.Data{
+					Request:     hReq,
+					ServiceType: consts.ServiceTypeHTTP,
+				}
+			},
+			expected: output{
+				appctx.Response{
+					Name: consts.ResponseValidationFailure,
+				},
+			},
+			configureMock: func(mc mockConfig) {
+				mc.shortUrlRepo.EXPECT().FindBy(ctx, repositories.FindShortUrlsCriteria{
+					ShortCode: shortUrlWithUserID.ShortCode,
+					Limit:     1,
+				}).Return([]entity.ShortUrls{shortUrlWithUserID}, nil)
+
+				mc.shortUrlRepo.EXPECT().FindBy(ctx, repositories.FindShortUrlsCriteria{
+					ShortCode: "test-new",
+					Limit:     1,
+				}).Return([]entity.ShortUrls{{}}, nil)
+			},
+		},
+		{
 			testName: "Test error update data",
 			configureInput: func() *appctx.Data {
 				vars := map[string]string{
@@ -211,6 +285,11 @@ func TestUpdateShortUrl(t *testing.T) {
 					ShortCode: shortUrlWithUserID.ShortCode,
 					Limit:     1,
 				}).Return([]entity.ShortUrls{shortUrlWithUserID}, nil)
+
+				mc.shortUrlRepo.EXPECT().FindBy(ctx, repositories.FindShortUrlsCriteria{
+					ShortCode: "test-new",
+					Limit:     1,
+				}).Return([]entity.ShortUrls{}, nil)
 
 				mc.shortUrlRepo.EXPECT().Update(ctx, entity.ShortUrls{
 					ID:         shortUrlWithUserID.ID,
@@ -254,6 +333,11 @@ func TestUpdateShortUrl(t *testing.T) {
 					ShortCode: shortUrlWithUserID.ShortCode,
 					Limit:     1,
 				}).Return([]entity.ShortUrls{shortUrlWithUserID}, nil)
+
+				mc.shortUrlRepo.EXPECT().FindBy(ctx, repositories.FindShortUrlsCriteria{
+					ShortCode: "test-new",
+					Limit:     1,
+				}).Return([]entity.ShortUrls{}, nil)
 
 				mc.shortUrlRepo.EXPECT().Update(ctx, entity.ShortUrls{
 					ID:         shortUrlWithUserID.ID,
