@@ -41,8 +41,9 @@ func (u *updateShortUrl) Serve(data *appctx.Data) (response appctx.Response) {
 		lvState3       = consts.LogEventStateCheckUserID
 		lfState3Status = "state_3_check_user_id_status"
 
-		lvState4       = consts.LogEventStateCheckExistingData
-		lfState4Status = "state_2_check_existing_data_status"
+		lvState4       = consts.LogEventStateFetchDBData
+		lfState4Status = "state_4_fetch_db_data_status"
+		lfState4Data   = "state_4_fetch_db_data"
 
 		lvState5       = consts.LogEventStateUpdateData
 		lfState5Status = "state_4_update_data_to_db_status"
@@ -138,6 +139,10 @@ func (u *updateShortUrl) Serve(data *appctx.Data) (response appctx.Response) {
 		return
 	}
 
+	lf = append(lf,
+		logger.Any(lfState3Status, consts.LogStatusSuccess),
+	)
+
 	/*------------------------------
 	| STEP 4: Check data existing by short code
 	* -----------------------------*/
@@ -174,6 +179,7 @@ func (u *updateShortUrl) Serve(data *appctx.Data) (response appctx.Response) {
 
 	lf = append(lf,
 		logger.Any(lfState4Status, consts.LogStatusSuccess),
+		logger.Any(lfState4Data, util.DumpToString(newShortUrls)),
 	)
 
 	/*---------------------------
@@ -194,6 +200,10 @@ func (u *updateShortUrl) Serve(data *appctx.Data) (response appctx.Response) {
 
 	response.SetName(consts.ResponseSuccess)
 	response.Message = "Success update short url"
+
+	lf = append(lf,
+		logger.Any(lfState5Status, consts.LogStatusSuccess),
+	)
 	logger.InfoWithContext(ctx, logger.SetMessageFormat(consts.LogMessageSuccess, consts.LogEventNameUpdateShortUrl), lf...)
 	return
 }

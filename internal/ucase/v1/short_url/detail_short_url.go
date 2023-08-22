@@ -32,7 +32,7 @@ func (u *detailShortUrl) Serve(data *appctx.Data) (response appctx.Response) {
 		lfState1Data   = "state_1_fetch_db_data"
 
 		lvState2       = consts.LogEventStateUpdateData
-		lfState2Status = "state_3_update_data_to_db_status"
+		lfState2Status = "state_2_update_data_to_db_status"
 
 		err error
 
@@ -97,6 +97,9 @@ func (u *detailShortUrl) Serve(data *appctx.Data) (response appctx.Response) {
 	}
 
 	response.SetName(consts.ResponseSuccess).SetData(dto.TransformToDetailShortUrlResponse(shortUrl))
+	lf = append(lf,
+		logger.Any(lfState2Status, consts.LogStatusSuccess),
+	)
 	logger.InfoWithContext(ctx, logger.SetMessageFormat(consts.LogMessageSuccess, consts.LogEventNameDetailShortUrl), lf...)
 	return
 }
