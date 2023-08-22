@@ -299,7 +299,6 @@ func TestUpdateShortUrl(t *testing.T) {
 					VisitCount: shortUrlWithUserID.VisitCount,
 					CreatedAt:  shortUrlWithUserID.CreatedAt,
 					UpdatedAt:  shortUrlWithUserID.UpdatedAt,
-					DeletedAt:  shortUrlWithUserID.DeletedAt,
 				}).Return(errDummy)
 			},
 		},
@@ -347,7 +346,6 @@ func TestUpdateShortUrl(t *testing.T) {
 					VisitCount: shortUrlWithUserID.VisitCount,
 					CreatedAt:  shortUrlWithUserID.CreatedAt,
 					UpdatedAt:  shortUrlWithUserID.UpdatedAt,
-					DeletedAt:  shortUrlWithUserID.DeletedAt,
 				}).Return(nil)
 			},
 		},
