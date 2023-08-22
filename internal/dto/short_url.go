@@ -17,13 +17,12 @@ func TransformToInsertEntity(body presentations.InsertShortUrlPayload, id int64)
 
 func TransformToDetailShortUrlResponse(data entity.ShortUrls) presentations.DetailShortUrlResponse {
 	return presentations.DetailShortUrlResponse{
-		ID:         data.ID,
-		UserID:     data.UserID,
-		URL:        data.URL,
-		ShortCode:  data.ShortCode,
-		VisitCount: data.VisitCount,
-		CreatedAt:  data.CreatedAt.Format(consts.LayoutDateTimeFormat),
-		UpdatedAt:  data.UpdatedAt.Format(consts.LayoutDateTimeFormat),
+		ID:        data.ID,
+		UserID:    data.UserID,
+		URL:       data.URL,
+		ShortCode: data.ShortCode,
+		CreatedAt: data.CreatedAt.Format(consts.LayoutDateTimeFormat),
+		UpdatedAt: data.UpdatedAt.Format(consts.LayoutDateTimeFormat),
 	}
 }
 

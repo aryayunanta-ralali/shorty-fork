@@ -22,6 +22,7 @@ Accept: application/json
 
 ### Get statistics short url
 GET http://localhost:8081/in/v1/short-urls/ralali-test/stats
+X-User-ID: 9517f3cf-323a-4f41-96af-7e3522267465
 Accept: application/json
 
 ### Update short url
