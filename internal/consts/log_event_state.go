@@ -10,6 +10,9 @@ const (
 	// LogEventStateUpdateData const
 	LogEventStateUpdateData = "UpdateData"
 
+	// LogEventStateUpdateData const
+	LogEventStateDeleteData = "DeleteData"
+
 	// LogEventStateCheckUserID const
 	LogEventStateCheckUserID = "CheckUserID"
 

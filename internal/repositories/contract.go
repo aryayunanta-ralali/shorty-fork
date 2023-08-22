@@ -22,5 +22,6 @@ type ShortUrls interface {
 	FindBy(ctx context.Context, cri FindShortUrlsCriteria) ([]entity.ShortUrls, error)
 	Insert(ctx context.Context, data entity.ShortUrls) error
 	Update(ctx context.Context, data entity.ShortUrls) error
+	Delete(ctx context.Context, id int64) error
 	IncrementViewCount(ctx context.Context, id int64) error
 }

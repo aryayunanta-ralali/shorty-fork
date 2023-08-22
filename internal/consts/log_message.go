@@ -22,4 +22,7 @@ const (
 
 	// LogMessageDBFailedToUpdate const
 	LogMessageDBFailedToUpdate = `failed to %v update data into the database, err: %v`
+
+	// LogMessageDBFailedToDelete const
+	LogMessageDBFailedToDelete = `failed to %v delete data into the database, err: %v`
 )

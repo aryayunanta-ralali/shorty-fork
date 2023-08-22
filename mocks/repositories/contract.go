@@ -177,6 +177,20 @@ func (m *MockShortUrls) EXPECT() *MockShortUrlsMockRecorder {
 	return m.recorder
 }
 
+// Delete mocks base method.
+func (m *MockShortUrls) Delete(ctx context.Context, id int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockShortUrlsMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockShortUrls)(nil).Delete), ctx, id)
+}
+
 // FindBy mocks base method.
 func (m *MockShortUrls) FindBy(ctx context.Context, cri repositories.FindShortUrlsCriteria) ([]entity.ShortUrls, error) {
 	m.ctrl.T.Helper()
