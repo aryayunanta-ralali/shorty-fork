@@ -54,8 +54,6 @@ func (s *shortUrlsRepo) FindBy(ctx context.Context, cri FindShortUrlsCriteria) (
   			updated_at
 		FROM
 			short_urls
-		WHERE
-			deleted_at IS NULL
 		`
 
 	q, vals := s.applyFindCriteria(q, cri)

@@ -17,5 +17,4 @@ type ShortUrls struct {
 	VisitCount int64     `json:"visit_count" db:"visit_count,omitempty" qb:"visit_count,omitempty"`
 	CreatedAt  time.Time `json:"created_at" db:"created_at,omitempty" qb:"created_at,omitempty"`
 	UpdatedAt  time.Time `json:"updated_at" db:"updated_at,omitempty" qb:"updated_at,omitempty"`
-	DeletedAt  time.Time `json:"deleted_at" db:"deleted_at,omitempty" qb:"deleted_at,omitempty"`
 }
