@@ -10,8 +10,7 @@ CREATE TABLE IF NOT EXISTS short_urls
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
 
-    KEY user_id (user_id),
-    KEY deleted_at (deleted_at)
+    KEY user_id (user_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8
   COLLATE = utf8_unicode_ci;
