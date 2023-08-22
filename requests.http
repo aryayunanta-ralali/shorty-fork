@@ -20,9 +20,22 @@ X-User-ID: 9517f3cf-323a-4f41-96af-7e3522267465 # Optional
 GET http://localhost:8081/in/v1/short-urls/ralali-test
 Accept: application/json
 
+### Get statistics short url
+GET http://localhost:8081/in/v1/short-urls/ralali-test/stats
+Accept: application/json
+
 ### Update short url
 PUT http://localhost:8081/in/v1/short-urls/ralali-test
 Content-Type: application/json
+X-User-ID: 9517f3cf-323a-4f41-96af-7e3522267465
+
+{
+  "short_code": "ralali-updated"
+}
+
+### Delete short url
+DELETE http://localhost:8081/in/v1/short-urls/ralali-test
+Accept: application/json
 X-User-ID: 9517f3cf-323a-4f41-96af-7e3522267465
 
 {

@@ -35,3 +35,10 @@ func TransformToUpdateEntity(body entity.ShortUrls, payload presentations.Update
 	body.ShortCode = payload.ShortCode
 	return body
 }
+
+func TransformToGetStatShortUrlResponse(data entity.ShortUrls) presentations.GetStatShortUrlResponse {
+	return presentations.GetStatShortUrlResponse{
+		ID:         data.ID,
+		VisitCount: data.VisitCount,
+	}
+}
