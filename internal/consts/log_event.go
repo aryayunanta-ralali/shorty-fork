@@ -18,4 +18,7 @@ const (
 
 	// LogEventNameGetStatShortUrl const
 	LogEventNameGetStatShortUrl = `GetStatShortUrl`
+
+	// LogEventNameGetListShortUrl const
+	LogEventNameGetListShortUrl = `GetListShortUrl`
 )

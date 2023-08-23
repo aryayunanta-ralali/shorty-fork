@@ -15,6 +15,25 @@ func TransformToInsertEntity(body presentations.InsertShortUrlPayload, id int64)
 	}
 }
 
+func TransformToGetListShortUrlResponse(data []entity.ShortUrls) []presentations.GetListShortUrlResponse {
+	var resp []presentations.GetListShortUrlResponse
+
+	for _, val := range data {
+		currData := presentations.GetListShortUrlResponse{
+			ID:        val.ID,
+			UserID:    val.UserID,
+			URL:       val.URL,
+			ShortCode: val.ShortCode,
+			CreatedAt: val.CreatedAt.Format(consts.LayoutDateTimeFormat),
+			UpdatedAt: val.UpdatedAt.Format(consts.LayoutDateTimeFormat),
+		}
+
+		resp = append(resp, currData)
+	}
+
+	return resp
+}
+
 func TransformToDetailShortUrlResponse(data entity.ShortUrls) presentations.DetailShortUrlResponse {
 	return presentations.DetailShortUrlResponse{
 		ID:        data.ID,
