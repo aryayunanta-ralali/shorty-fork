@@ -1,9 +1,9 @@
-### List endpoints
-GET http://localhost:8081/in/
-Accept: application/json
-
 ### Healthcheck
 GET http://localhost:8081/in/health
+Accept: application/json
+
+### List short urls
+GET http://localhost:8081/in/v1/short-urls
 Accept: application/json
 
 ### Create short url

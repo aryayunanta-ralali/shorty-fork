@@ -5,10 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/aryayunanta-ralali/shorty/internal/repositories"
-	"github.com/aryayunanta-ralali/shorty/internal/ucase/v1/endpoint"
 	"github.com/aryayunanta-ralali/shorty/internal/ucase/v1/short_url"
 	"github.com/aryayunanta-ralali/shorty/pkg/generator"
-	"github.com/gorilla/mux"
 	"net/http"
 	"runtime/debug"
 	"time"
@@ -21,10 +19,6 @@ import (
 	"github.com/aryayunanta-ralali/shorty/internal/ucase"
 	"github.com/aryayunanta-ralali/shorty/pkg/logger"
 	"github.com/aryayunanta-ralali/shorty/pkg/routerkit"
-
-	//"github.com/aryayunanta-ralali/shorty/pkg/mariadb"
-	//"github.com/aryayunanta-ralali/shorty/internal/repositories"
-	//"github.com/aryayunanta-ralali/shorty/internal/ucase/example"
 
 	ucaseContract "github.com/aryayunanta-ralali/shorty/internal/ucase/contract"
 )
@@ -140,21 +134,21 @@ func (rtr *router) Route() *routerkit.Router {
 	repoShortUrl := repositories.NewShortUrlsRepo(db)
 
 	insertShortUrl := short_url.NewInsertShortUrl(generator.GenerateInt64, repoShortUrl)
+	listShortUrl := short_url.NewGetListShortUrl(repoShortUrl)
 	detailShortUrl := short_url.NewDetailShortUrl(repoShortUrl)
 	updateShortUrl := short_url.NewUpdateShortUrl(repoShortUrl)
 	deleteShortUrl := short_url.NewDeleteShortUrl(repoShortUrl)
 	statShortUrl := short_url.NewGetStatShortUrl(repoShortUrl)
-	listEndpoint := endpoint.NewGetList()
 
 	// healthy
-	in.HandleFunc("/", rtr.handle(
-		handler.HttpRequest,
-		listEndpoint,
-	)).Methods(http.MethodGet)
-
 	in.HandleFunc("/health", rtr.handle(
 		handler.HttpRequest,
 		healthy,
+	)).Methods(http.MethodGet)
+
+	inV1.HandleFunc("/short-urls", rtr.handle(
+		handler.HttpRequest,
+		listShortUrl,
 	)).Methods(http.MethodGet)
 
 	inV1.HandleFunc("/short-urls", rtr.handle(
@@ -181,12 +175,6 @@ func (rtr *router) Route() *routerkit.Router {
 		handler.HttpRequest,
 		statShortUrl,
 	)).Methods(http.MethodGet)
-
-	in.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-		tmpl, _ := route.GetPathTemplate()
-		consts.Endpoints = append(consts.Endpoints, tmpl)
-		return nil
-	})
 
 	return rtr.router
 
