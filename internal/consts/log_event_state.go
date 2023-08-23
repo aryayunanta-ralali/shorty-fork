@@ -7,6 +7,15 @@ const (
 	// LogEventStateInsertData const
 	LogEventStateInsertData = "InsertDataToDB"
 
+	// LogEventStateUpdateData const
+	LogEventStateUpdateData = "UpdateData"
+
+	// LogEventStateUpdateData const
+	LogEventStateDeleteData = "DeleteData"
+
+	// LogEventStateCheckUserID const
+	LogEventStateCheckUserID = "CheckUserID"
+
 	// LogEventStateCheckExistingData const
 	LogEventStateCheckExistingData = "CheckExistingData"
 

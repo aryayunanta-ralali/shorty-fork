@@ -37,8 +37,8 @@ func (u *insertShortUrl) Serve(data *appctx.Data) (response appctx.Response) {
 		lvState1       = consts.LogEventStateValidateRequestBody
 		lfState1Status = "state_1_validate_request_status"
 
-		lvState2       = consts.LogEventStateCheckExistingData
-		lfState2Status = "state_2_check_existing_data_status"
+		lvState2       = consts.LogEventStateFetchDBData
+		lfState2Status = "state_2_fetch_db_data_status"
 
 		lvState3       = consts.LogEventStateInsertData
 		lfState3Status = "state_3_insert_to_db_status"

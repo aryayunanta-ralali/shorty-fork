@@ -13,7 +13,7 @@ type storer struct {
 	dbTx mariadb.Transaction
 }
 
-//  NewStore creates a new instance of database transaction.
+// NewStore creates a new instance of database transaction.
 func NewStore(dbTx mariadb.Transaction) *storer {
 	return &storer{dbTx: dbTx}
 }
@@ -42,6 +42,16 @@ func (r *storer) Store(ctx context.Context, tableName string, entity interface{}
 
 	id, err = res.LastInsertId()
 	return id, err
+}
+
+func (r *storer) Execute(ctx context.Context, query string, values ...interface{}) (affected int64, err error) {
+	res, err := r.dbTx.ExecContext(ctx, query, values...)
+	if err != nil {
+		return 0, err
+	}
+
+	affected, err = res.RowsAffected()
+	return affected, err
 }
 
 func (r *storer) Update(ctx context.Context, tableName string, entity interface{}, conditions []WhereCondition) (affected int64, err error) {

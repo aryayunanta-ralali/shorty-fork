@@ -140,6 +140,10 @@ func (rtr *router) Route() *routerkit.Router {
 	repoShortUrl := repositories.NewShortUrlsRepo(db)
 
 	insertShortUrl := short_url.NewInsertShortUrl(generator.GenerateInt64, repoShortUrl)
+	detailShortUrl := short_url.NewDetailShortUrl(repoShortUrl)
+	updateShortUrl := short_url.NewUpdateShortUrl(repoShortUrl)
+	deleteShortUrl := short_url.NewDeleteShortUrl(repoShortUrl)
+	statShortUrl := short_url.NewGetStatShortUrl(repoShortUrl)
 	listEndpoint := endpoint.NewGetList()
 
 	// healthy
@@ -158,28 +162,31 @@ func (rtr *router) Route() *routerkit.Router {
 		insertShortUrl,
 	)).Methods(http.MethodPost)
 
+	inV1.HandleFunc("/short-urls/{short_code:[a-zA-Z0-9-]{1,255}}", rtr.handle(
+		handler.HttpRequest,
+		detailShortUrl,
+	)).Methods(http.MethodGet)
+
+	inV1.HandleFunc("/short-urls/{short_code:[a-zA-Z0-9-]{1,255}}", rtr.handle(
+		handler.HttpRequest,
+		updateShortUrl,
+	)).Methods(http.MethodPut)
+
+	inV1.HandleFunc("/short-urls/{short_code:[a-zA-Z0-9-]{1,255}}", rtr.handle(
+		handler.HttpRequest,
+		deleteShortUrl,
+	)).Methods(http.MethodDelete)
+
+	inV1.HandleFunc("/short-urls/{short_code:[a-zA-Z0-9-]{1,255}}/stats", rtr.handle(
+		handler.HttpRequest,
+		statShortUrl,
+	)).Methods(http.MethodGet)
+
 	in.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		tmpl, _ := route.GetPathTemplate()
 		consts.Endpoints = append(consts.Endpoints, tmpl)
 		return nil
 	})
-
-	// this route for example rest, please delete
-	// example list
-	//inV1.HandleFunc("/example", rtr.handle(
-	//    handler.HttpRequest,
-	//    el,
-	//)).Methods(http.MethodGet)
-
-	//inV1.HandleFunc("/example", rtr.handle(
-	//    handler.HttpRequest,
-	//    ec,
-	//)).Methods(http.MethodPost)
-
-	//inV1.HandleFunc("/example/{id:[0-9]+}", rtr.handle(
-	//    handler.HttpRequest,
-	//    ed,
-	//)).Methods(http.MethodDelete)
 
 	return rtr.router
 

@@ -54,8 +54,7 @@ func (s *shortUrlsRepo) FindBy(ctx context.Context, cri FindShortUrlsCriteria) (
   			updated_at
 		FROM
 			short_urls
-		WHERE
-			deleted_at IS NULL
+		WHERE TRUE
 		`
 
 	q, vals := s.applyFindCriteria(q, cri)
@@ -107,6 +106,54 @@ func (s *shortUrlsRepo) Update(ctx context.Context, data entity.ShortUrls) error
 
 		if err != nil {
 			return fmt.Errorf("update ShortUrls err: %v", err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		tracer.SpanError(ctx, err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *shortUrlsRepo) Delete(ctx context.Context, id int64) error {
+	newCtx := tracer.SpanStartRepositories(ctx, "short_urls.Delete")
+	defer tracer.SpanFinish(newCtx)
+
+	q := "DELETE FROM short_urls WHERE id = ?"
+
+	err := s.tx.ExecTX(newCtx, &sql.TxOptions{Isolation: sql.LevelRepeatableRead}, func(ctx context.Context, tx StoreTX) error {
+		_, err := tx.Execute(ctx, q, id)
+
+		if err != nil {
+			return fmt.Errorf("delete ShortUrls err: %v", err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		tracer.SpanError(ctx, err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *shortUrlsRepo) IncrementViewCount(ctx context.Context, id int64) error {
+	newCtx := tracer.SpanStartRepositories(ctx, "short_urls.IncrementViewCount")
+	defer tracer.SpanFinish(newCtx)
+
+	q := "UPDATE short_urls SET visit_count = visit_count + 1 WHERE id = ?"
+
+	err := s.tx.ExecTX(newCtx, &sql.TxOptions{Isolation: sql.LevelRepeatableRead}, func(ctx context.Context, tx StoreTX) error {
+		_, err := tx.Execute(ctx, q, id)
+
+		if err != nil {
+			return fmt.Errorf("increment view count ShortUrls err: %v", err)
 		}
 
 		return nil
