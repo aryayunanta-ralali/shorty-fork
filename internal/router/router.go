@@ -154,6 +154,7 @@ func (rtr *router) Route() *routerkit.Router {
 	inV1.HandleFunc("/short-urls", rtr.handle(
 		handler.HttpRequest,
 		insertShortUrl,
+		middleware.ValidateContentType,
 	)).Methods(http.MethodPost)
 
 	inV1.HandleFunc("/short-urls/{short_code:[a-zA-Z0-9-]{1,255}}", rtr.handle(
@@ -164,6 +165,7 @@ func (rtr *router) Route() *routerkit.Router {
 	inV1.HandleFunc("/short-urls/{short_code:[a-zA-Z0-9-]{1,255}}", rtr.handle(
 		handler.HttpRequest,
 		updateShortUrl,
+		middleware.ValidateContentType,
 	)).Methods(http.MethodPut)
 
 	inV1.HandleFunc("/short-urls/{short_code:[a-zA-Z0-9-]{1,255}}", rtr.handle(
